@@ -1,9 +1,9 @@
 import * as React from "react"
 import { X, Calendar, User as UserIcon, Tag, AlignLeft } from "lucide-react"
 import { Task, tasksService } from "../../services/tasks.service"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { PriorityBadge } from "../ui/PriorityBadge"
-import { StatusBadge } from "../ui/StatusBadge"
+import { useQuery } from "@tanstack/react-query"
+import { useTasks } from "../../hooks/useTasks"
+import { STATUS_CONFIG, PRIORITY_CONFIG } from "../../constants"
 import { Avatar } from "../ui/Avatar"
 
 export interface TaskDetailPanelProps {
@@ -12,6 +12,7 @@ export interface TaskDetailPanelProps {
 }
 
 export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
+  const { updateTask } = useTasks();
   const { data: task, isLoading } = useQuery({
     queryKey: ['task', taskId],
     queryFn: () => taskId ? tasksService.getTask(taskId) : null,
@@ -66,11 +67,31 @@ export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
                   <div className="bg-[var(--bg-muted)]/30 rounded-lg p-4 border border-[var(--border)] space-y-4">
                     <div>
                       <h4 className="text-xs font-medium text-[var(--muted)] uppercase tracking-wider mb-2">Status</h4>
-                      <StatusBadge status={task.status} />
+                      <select
+                        value={task.status}
+                        onChange={(e) => updateTask({ id: task.id, data: { status: e.target.value as any } })}
+                        className="flex h-8 w-full items-center justify-between rounded-md border border-[var(--border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
+                      >
+                        {Object.entries(STATUS_CONFIG).map(([key, config]) => (
+                          <option key={key} value={key} className="bg-[var(--bg)] text-[var(--fg)]">
+                            {config.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <h4 className="text-xs font-medium text-[var(--muted)] uppercase tracking-wider mb-2">Priority</h4>
-                      <PriorityBadge priority={task.priority} />
+                      <select
+                        value={task.priority}
+                        onChange={(e) => updateTask({ id: task.id, data: { priority: e.target.value as any } })}
+                        className="flex h-8 w-full items-center justify-between rounded-md border border-[var(--border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
+                      >
+                        {Object.entries(PRIORITY_CONFIG).map(([key, config]) => (
+                          <option key={key} value={key} className="bg-[var(--bg)] text-[var(--fg)]">
+                            {config.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <h4 className="text-xs font-medium text-[var(--muted)] uppercase tracking-wider mb-2">Assignee</h4>
