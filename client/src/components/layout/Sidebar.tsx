@@ -9,6 +9,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsO
   const pathname = usePathname();
 
   const navItems = [
+    { name: 'Dashboard', href: '/', icon: LayoutList, exact: true },
     { name: 'Tasks', href: '/tasks', icon: LayoutList },
     { name: 'Projects', href: '/projects', icon: Folder },
   ];
@@ -51,7 +52,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsO
           <div className="text-xs font-medium text-[var(--muted)] px-3 mb-2 uppercase tracking-wider">Workspace</div>
           <nav className="flex flex-col gap-1">
             {navItems.map((item) => {
-              const isActive = pathname.startsWith(item.href);
+              const isActive = (item as any).exact ? pathname === item.href : pathname.startsWith(item.href);
               const Icon = item.icon;
               return (
                 <Link
