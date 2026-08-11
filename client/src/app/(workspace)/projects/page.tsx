@@ -1,17 +1,20 @@
 'use client';
 
+import { useState } from 'react';
 import TopBar from '../../../components/layout/TopBar';
 import { useProjects } from '../../../hooks/useProjects';
 import { Button } from '../../../components/ui/Button';
 import { Plus } from 'lucide-react';
 import { PriorityBadge } from '../../../components/ui/PriorityBadge';
 import { Avatar } from '../../../components/ui/Avatar';
+import { CreateProjectModal } from '../../../components/projects/CreateProjectModal';
 
 export default function ProjectsPage() {
   const { projects, isLoading } = useProjects();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const toolbar = (
-    <Button size="sm" className="gap-2 ml-2">
+    <Button size="sm" className="gap-2 ml-2" onClick={() => setIsCreateModalOpen(true)}>
       <Plus className="w-4 h-4" />
       New Project
     </Button>
@@ -66,6 +69,11 @@ export default function ProjectsPage() {
           )}
         </div>
       </div>
+
+      <CreateProjectModal 
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+      />
     </div>
   );
 }
