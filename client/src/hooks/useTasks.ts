@@ -31,6 +31,22 @@ export function useTasks(params?: { search?: string, status?: string, projectId?
     },
   });
 
+  const addMember = useMutation({
+    mutationFn: ({ taskId, userId }: { taskId: string, userId: string }) => tasksService.addMember(taskId, userId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['task', variables.taskId] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    }
+  });
+
+  const removeMember = useMutation({
+    mutationFn: ({ taskId, userId }: { taskId: string, userId: string }) => tasksService.removeMember(taskId, userId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['task', variables.taskId] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+    }
+  });
+
   return {
     tasks: tasksQuery.data || [],
     isLoading: tasksQuery.isLoading,
@@ -41,6 +57,10 @@ export function useTasks(params?: { search?: string, status?: string, projectId?
     isUpdating: updateTask.isPending,
     deleteTask: deleteTask.mutateAsync,
     isDeleting: deleteTask.isPending,
+    addMember: addMember.mutateAsync,
+    isAddingMember: addMember.isPending,
+    removeMember: removeMember.mutateAsync,
+    isRemovingMember: removeMember.isPending,
   };
 }
 

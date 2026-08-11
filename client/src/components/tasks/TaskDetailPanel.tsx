@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useTasks } from "../../hooks/useTasks"
 import { useComments } from "../../hooks/useComments"
 import { useLabels } from "../../hooks/useLabels"
+import { useUsers } from "../../hooks/useUsers"
 import { STATUS_CONFIG, PRIORITY_CONFIG } from "../../constants"
 import { Avatar } from "../ui/Avatar"
 import { Button } from "../ui/Button"
@@ -16,9 +17,10 @@ export interface TaskDetailPanelProps {
 }
 
 export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
-  const { updateTask } = useTasks();
+  const { updateTask, addMember, removeMember } = useTasks();
   const { createComment, isCreating: isCreatingComment, deleteComment, isDeleting: isDeletingComment } = useComments();
   const { labels, assignToTask, removeFromTask, createLabel } = useLabels();
+  const { users } = useUsers();
   const [newComment, setNewComment] = React.useState("");
 
   const handleAddComment = async () => {
@@ -155,15 +157,36 @@ export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
                       </select>
                     </div>
                     <div>
-                      <h4 className="text-xs font-medium text-[var(--muted)] uppercase tracking-wider mb-2">Assignee</h4>
-                      <div className="flex items-center gap-2">
+                      <h4 className="text-xs font-medium text-[var(--muted)] uppercase tracking-wider mb-2">Assignees</h4>
+                      <div className="flex flex-wrap items-center gap-2">
                         {task.TaskMember && task.TaskMember.length > 0 ? (
                           task.TaskMember.map(member => (
-                            <Avatar key={member.user.id} size="sm" initials={member.user.name} title={member.user.name} />
+                            <div key={member.user?.id || member.User?.id} className="relative group flex items-center">
+                              <Avatar size="sm" initials={member.user?.name || member.User?.name} title={member.user?.name || member.User?.name} />
+                              <button 
+                                onClick={() => removeMember({ taskId: task.id, userId: member.user?.id || member.User?.id })}
+                                className="absolute -top-1 -right-1 bg-[var(--bg)] rounded-full text-[var(--muted)] hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity border border-[var(--border)]"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
                           ))
                         ) : (
                           <span className="text-sm text-[var(--muted)]">Unassigned</span>
                         )}
+                        <select
+                          className="text-xs bg-[var(--bg-muted)] border border-[var(--border)] rounded px-1.5 py-1 outline-none text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer h-7"
+                          onChange={(e) => {
+                            if (e.target.value) addMember({ taskId: task.id, userId: e.target.value });
+                            e.target.value = ""; // reset
+                          }}
+                          defaultValue=""
+                        >
+                          <option value="" disabled>+</option>
+                          {users.map(u => (
+                            <option key={u.id} value={u.id}>{u.name}</option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                     <div>

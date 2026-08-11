@@ -34,4 +34,14 @@ export class TasksController {
   remove(@Param('id') id: string) {
     return this.tasksService.remove(id);
   }
+
+  @Post(':id/members')
+  addMember(@Param('id') id: string, @Body('userId') userId: string) {
+    return this.tasksService.addMember(id, userId);
+  }
+
+  @Delete(':id/members/:userId')
+  removeMember(@Param('id') id: string, @Param('userId') userId: string) {
+    return this.tasksService.removeMember(id, userId);
+  }
 }

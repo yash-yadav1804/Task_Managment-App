@@ -104,4 +104,30 @@ export class TasksService {
       throw error;
     }
   }
+
+  async addMember(taskId: string, userId: string) {
+    const existing = await this.prisma.taskMember.findUnique({
+      where: { taskId_userId: { taskId, userId } }
+    });
+    
+    if (existing) return existing;
+
+    return this.prisma.taskMember.create({
+      data: { taskId, userId }
+    });
+  }
+
+  async removeMember(taskId: string, userId: string) {
+    const existing = await this.prisma.taskMember.findUnique({
+      where: { taskId_userId: { taskId, userId } }
+    });
+    
+    if (!existing) return { success: true };
+
+    await this.prisma.taskMember.delete({
+      where: { taskId_userId: { taskId, userId } }
+    });
+    
+    return { success: true };
+  }
 }

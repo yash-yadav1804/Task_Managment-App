@@ -48,5 +48,13 @@ export const tasksService = {
   async deleteTask(id: string): Promise<{ success: boolean }> {
     const { data } = await api.delete(`/tasks/${id}`);
     return data;
+  },
+
+  async addMember(taskId: string, userId: string): Promise<void> {
+    await api.post(`/tasks/${taskId}/members`, { userId });
+  },
+
+  async removeMember(taskId: string, userId: string): Promise<void> {
+    await api.delete(`/tasks/${taskId}/members/${userId}`);
   }
 };
