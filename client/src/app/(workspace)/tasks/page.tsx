@@ -48,8 +48,6 @@ export default function TasksPage() {
       <CreateTaskModal 
         isOpen={isCreateModalOpen} 
         onClose={() => setIsCreateModalOpen(false)} 
-        // using a placeholder project id until we have a real one from the server seeding
-        defaultProjectId="some-project-id"
       />
     </div>
   );

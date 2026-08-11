@@ -7,13 +7,14 @@ import { Input } from "../ui/Input"
 import { Textarea } from "../ui/Textarea"
 import { Button } from "../ui/Button"
 import { useTasks } from "../../hooks/useTasks"
+import { useProjects } from "../../hooks/useProjects"
 import { PRIORITY_CONFIG } from "../../constants"
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   priority: z.enum(['NO_PRIORITY', 'LOW', 'MEDIUM', 'HIGH', 'URGENT']),
-  projectId: z.string().min(1, "Project ID is required"),
+  projectId: z.string().min(1, "Project is required"),
 })
 
 type TaskFormValues = z.infer<typeof taskSchema>
@@ -21,12 +22,12 @@ type TaskFormValues = z.infer<typeof taskSchema>
 export interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  // Passing a default projectId for now since we don't have project selection yet
   defaultProjectId?: string; 
 }
 
-export function CreateTaskModal({ isOpen, onClose, defaultProjectId = 'default-project-id' }: CreateTaskModalProps) {
+export function CreateTaskModal({ isOpen, onClose, defaultProjectId = '' }: CreateTaskModalProps) {
   const { createTask, isCreating } = useTasks();
+  const { projects } = useProjects();
   
   const { register, handleSubmit, formState: { errors }, reset } = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
@@ -75,18 +76,36 @@ export function CreateTaskModal({ isOpen, onClose, defaultProjectId = 'default-p
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Priority</label>
-          <select 
-            {...register("priority")}
-            className="flex h-9 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
-          >
-            {Object.entries(PRIORITY_CONFIG).map(([key, config]) => (
-              <option key={key} value={key} className="bg-[var(--bg)] text-[var(--fg)]">
-                {config.label}
-              </option>
-            ))}
-          </select>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Project</label>
+            <select 
+              {...register("projectId")}
+              className="flex h-9 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
+            >
+              <option value="" disabled>Select a project</option>
+              {projects?.map((p) => (
+                <option key={p.id} value={p.id} className="bg-[var(--bg)] text-[var(--fg)]">
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            {errors.projectId && <p className="text-red-500 text-xs">{errors.projectId.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Priority</label>
+            <select 
+              {...register("priority")}
+              className="flex h-9 w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
+            >
+              {Object.entries(PRIORITY_CONFIG).map(([key, config]) => (
+                <option key={key} value={key} className="bg-[var(--bg)] text-[var(--fg)]">
+                  {config.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="pt-4 flex justify-end gap-2">
