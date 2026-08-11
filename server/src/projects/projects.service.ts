@@ -14,13 +14,6 @@ export class ProjectsService {
         ...createProjectDto,
         leadId: userId,
         priority: (createProjectDto.priority as any) || 'NO_PRIORITY',
-        ProjectMember: {
-          create: [{ userId }], // Assign creator as a project member by default
-        },
-      },
-      include: {
-        lead: true,
-        ProjectMember: { include: { user: true } },
       },
     });
   }
@@ -28,9 +21,7 @@ export class ProjectsService {
   async findAll() {
     return this.prisma.project.findMany({
       include: {
-        lead: true,
-        ProjectMember: { include: { user: true } },
-        _count: { select: { tasks: true } }
+        _count: { select: { Task: true } }
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -40,13 +31,10 @@ export class ProjectsService {
     const project = await this.prisma.project.findUnique({
       where: { id },
       include: {
-        lead: true,
-        ProjectMember: { include: { user: true } },
-        tasks: {
+        Task: {
           include: {
-            reporter: true,
-            TaskMember: { include: { user: true } },
-            TaskLabel: { include: { label: true } },
+            TaskMember: { include: { User: true } },
+            TaskLabel: { include: { Label: true } },
           },
           orderBy: { createdAt: 'desc' }
         }
@@ -67,9 +55,6 @@ export class ProjectsService {
         data: {
           ...updateProjectDto,
           priority: updateProjectDto.priority as any,
-        },
-        include: {
-          lead: true,
         },
       });
     } catch (error) {

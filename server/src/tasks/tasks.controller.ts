@@ -4,7 +4,6 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { User } from '../../generated/prisma/index.js';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)
@@ -12,7 +11,7 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  create(@Body() createTaskDto: CreateTaskDto, @CurrentUser() user: User) {
+  create(@Body() createTaskDto: CreateTaskDto, @CurrentUser() user: any) {
     return this.tasksService.create(createTaskDto, user.id);
   }
 

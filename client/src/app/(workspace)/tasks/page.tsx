@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import TopBar from '../../components/layout/TopBar';
-import { useTasks } from '../../hooks/useTasks';
-import { TaskList } from '../../components/tasks/TaskList';
-import { TaskBoard } from '../../components/tasks/TaskBoard';
-import { CreateTaskModal } from '../../components/tasks/CreateTaskModal';
-import { TaskDetailPanel } from '../../components/tasks/TaskDetailPanel';
-import { Button } from '../../components/ui/Button';
+import TopBar from '@/components/layout/TopBar';
+import { useTasks } from '@/hooks/useTasks';
+import { TaskList } from '@/components/tasks/TaskList';
+import { TaskBoard } from '@/components/tasks/TaskBoard';
+import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
+import { TaskDetailPanel } from '@/components/tasks/TaskDetailPanel';
+import { Button } from '@/components/ui/Button';
 import { Plus, Filter, ArrowUpDown, LayoutList, LayoutGrid } from 'lucide-react';
 
 export default function TasksPage() {

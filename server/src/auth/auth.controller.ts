@@ -1,9 +1,10 @@
-import { Controller, Post, Get, Res, Req, UseGuards, HttpCode } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Res, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { GuestLoginDto } from './dto/guest-login.dto';
+import type { Response, Request } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { User } from '../../generated/prisma/index.js';
+import type { User } from '../../generated/prisma/index.js';
 
 @Controller('auth')
 export class AuthController {

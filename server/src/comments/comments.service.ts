@@ -9,12 +9,12 @@ export class CommentsService {
   async create(createCommentDto: CreateCommentDto, userId: string) {
     return this.prisma.comment.create({
       data: {
-        content: createCommentDto.content,
+        body: createCommentDto.content,
         taskId: createCommentDto.taskId,
         authorId: userId,
       },
       include: {
-        author: true,
+        User: true,
       },
     });
   }

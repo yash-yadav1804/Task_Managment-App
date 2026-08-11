@@ -20,9 +20,8 @@ export class TasksService {
         },
       },
       include: {
-        reporter: true,
-        TaskMember: { include: { user: true } },
-        TaskLabel: { include: { label: true } },
+        TaskMember: { include: { User: true } },
+        TaskLabel: { include: { Label: true } },
       },
     });
   }
@@ -30,9 +29,8 @@ export class TasksService {
   async findAll() {
     return this.prisma.task.findMany({
       include: {
-        reporter: true,
-        TaskMember: { include: { user: true } },
-        TaskLabel: { include: { label: true } },
+        TaskMember: { include: { User: true } },
+        TaskLabel: { include: { Label: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -42,10 +40,9 @@ export class TasksService {
     const task = await this.prisma.task.findUnique({
       where: { id },
       include: {
-        reporter: true,
-        TaskMember: { include: { user: true } },
-        TaskLabel: { include: { label: true } },
-        comments: { include: { author: true }, orderBy: { createdAt: 'desc' } },
+        TaskMember: { include: { User: true } },
+        TaskLabel: { include: { Label: true } },
+        Comment: { include: { User: true }, orderBy: { createdAt: 'desc' } },
       },
     });
 
@@ -66,9 +63,8 @@ export class TasksService {
           priority: updateTaskDto.priority as any,
         },
         include: {
-          reporter: true,
-          TaskMember: { include: { user: true } },
-          TaskLabel: { include: { label: true } },
+          TaskMember: { include: { User: true } },
+          TaskLabel: { include: { Label: true } },
         },
       });
     } catch (error) {
