@@ -4,7 +4,7 @@ import { GuestLoginDto } from './dto/guest-login.dto';
 import type { Response, Request } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import type { User } from '../../generated/prisma/index.js';
+import type { User } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {

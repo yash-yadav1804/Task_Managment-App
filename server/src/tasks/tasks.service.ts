@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { Prisma } from '../../generated/prisma/index.js';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TasksService {
