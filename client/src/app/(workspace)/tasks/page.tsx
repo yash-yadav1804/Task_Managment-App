@@ -1,13 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import TopBar from '../../components/layout/TopBar';
 import { useTasks } from '../../hooks/useTasks';
 import { TaskList } from '../../components/tasks/TaskList';
+import { CreateTaskModal } from '../../components/tasks/CreateTaskModal';
 import { Button } from '../../components/ui/Button';
 import { Plus, Filter, ArrowUpDown } from 'lucide-react';
 
 export default function TasksPage() {
   const { tasks, isLoading } = useTasks();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const toolbar = (
     <>
@@ -19,7 +22,7 @@ export default function TasksPage() {
         <ArrowUpDown className="w-4 h-4" />
         Sort
       </Button>
-      <Button size="sm" className="gap-2 ml-2">
+      <Button size="sm" className="gap-2 ml-2" onClick={() => setIsCreateModalOpen(true)}>
         <Plus className="w-4 h-4" />
         New Task
       </Button>
@@ -41,6 +44,13 @@ export default function TasksPage() {
           <TaskList tasks={tasks} isLoading={isLoading} />
         </div>
       </div>
+
+      <CreateTaskModal 
+        isOpen={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+        // using a placeholder project id until we have a real one from the server seeding
+        defaultProjectId="some-project-id"
+      />
     </div>
   );
 }
