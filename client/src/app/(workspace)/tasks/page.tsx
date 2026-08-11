@@ -11,7 +11,8 @@ import { Button } from '@/components/ui/Button';
 import { Plus, Filter, ArrowUpDown, LayoutList, LayoutGrid } from 'lucide-react';
 
 export default function TasksPage() {
-  const { tasks, isLoading } = useTasks();
+  const [searchQuery, setSearchQuery] = useState('');
+  const { tasks, isLoading } = useTasks({ search: searchQuery || undefined });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'board'>('list');
@@ -49,7 +50,7 @@ export default function TasksPage() {
 
   return (
     <div className="flex flex-col h-full bg-[var(--bg-outer)]">
-      <TopBar title="Tasks" toolbar={toolbar} />
+      <TopBar title="Tasks" toolbar={toolbar} onSearch={setSearchQuery} />
       
       <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
         {viewMode === 'list' ? (

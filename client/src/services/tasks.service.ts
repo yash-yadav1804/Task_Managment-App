@@ -18,8 +18,15 @@ export interface Task {
 }
 
 export const tasksService = {
-  async getTasks(): Promise<Task[]> {
-    const { data } = await api.get('/tasks');
+  async getTasks(params?: { search?: string, status?: string, projectId?: string }): Promise<Task[]> {
+    const query = new URLSearchParams();
+    if (params?.search) query.append('search', params.search);
+    if (params?.status) query.append('status', params.status);
+    if (params?.projectId) query.append('projectId', params.projectId);
+    
+    const queryString = query.toString();
+    const url = queryString ? `/tasks?${queryString}` : '/tasks';
+    const { data } = await api.get(url);
     return data;
   },
 

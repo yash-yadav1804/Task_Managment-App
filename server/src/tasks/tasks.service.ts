@@ -26,8 +26,26 @@ export class TasksService {
     });
   }
 
-  async findAll() {
+  async findAll(params?: { search?: string; status?: string; projectId?: string }) {
+    const where: Prisma.TaskWhereInput = {};
+    
+    if (params?.status) {
+      where.status = params.status as any;
+    }
+    
+    if (params?.projectId) {
+      where.projectId = params.projectId;
+    }
+    
+    if (params?.search) {
+      where.OR = [
+        { title: { contains: params.search, mode: 'insensitive' } },
+        { description: { contains: params.search, mode: 'insensitive' } },
+      ];
+    }
+
     return this.prisma.task.findMany({
+      where,
       include: {
         TaskMember: { include: { User: true } },
         TaskLabel: { include: { Label: true } },
