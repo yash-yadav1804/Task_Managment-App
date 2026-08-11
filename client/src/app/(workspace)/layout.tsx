@@ -2,13 +2,14 @@
 
 import { useAuth } from '../../hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar';
+import { MenuProvider, useMenu } from '../../contexts/MenuContext';
 
-export default function WorkspaceLayout({ children }: { children: React.ReactNode }) {
+function WorkspaceLayoutContent({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isSidebarOpen, setIsSidebarOpen } = useMenu();
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -30,5 +31,13 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
         </main>
       </div>
     </div>
+  );
+}
+
+export default function WorkspaceLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <MenuProvider>
+      <WorkspaceLayoutContent>{children}</WorkspaceLayoutContent>
+    </MenuProvider>
   );
 }
