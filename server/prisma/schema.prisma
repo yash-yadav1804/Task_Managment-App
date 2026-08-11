@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String?   @unique
+  name         String
+  username     String?   @unique
+  title        String?
+  avatarUrl    String?
+  isGuest      Boolean   @default(false)
+  passwordHash String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  TaskMember   TaskMember[]
+  Comment      Comment[]
+  Activity     Activity[]
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  priority    Priority  @default(NO_PRIORITY)
+  leadId      String?
+  startDate   DateTime?
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  Task        Task[]
+}
+
+model Task {
+  id           String     @id @default(cuid())
+  title        String
+  description  String?
+  status       TaskStatus @default(TODO)
+  priority     Priority   @default(NO_PRIORITY)
+  startDate    DateTime?
+  dueDate      DateTime?
+  projectId    String?
+  reporterId   String?
+  parentTaskId String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  Project      Project?       @relation(fields: [projectId], references: [id])
+  TaskMember   TaskMember[]
+  TaskLabel    TaskLabel[]
+  Comment      Comment[]
+  TaskResource TaskResource[]
+  Activity     Activity[]
+}
+
+model TaskMember {
+  taskId String
+  userId String
+
+  Task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, userId])
+}
+
+model Label {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String
+  createdAt DateTime @default(now())
+
+  TaskLabel TaskLabel[]
+}
+
+model TaskLabel {
+  taskId  String
+  labelId String
+
+  Task    Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  Label   Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, labelId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  taskId    String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model TaskResource {
+  id        String   @id @default(cuid())
+  title     String
+  url       String
+  taskId    String
+  createdAt DateTime @default(now())
+
+  Task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id        String       @id @default(cuid())
+  taskId    String
+  actorId   String
+  type      ActivityType
+  payload   Json?
+  createdAt DateTime     @default(now())
+
+  Task      Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  User      User         @relation(fields: [actorId], references: [id], onDelete: Cascade)
+}
+
+enum TaskStatus {
+  BACKLOG
+  TODO
+  DOING
+  COMPLETED
+  ON_HOLD
+}
+
+enum Priority {
+  NO_PRIORITY
+  URGENT
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum ActivityType {
+  TASK_CREATED
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  DUE_DATE_CHANGED
+  MEMBER_ADDED
+  COMMENT_ADDED
+  LABEL_ADDED
+}
