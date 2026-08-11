@@ -256,29 +256,44 @@ export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
                     </div>
                   </div>
 
-                  {task.comments && task.comments.length > 0 ? (
+                  {(task.comments?.length || 0) > 0 || (task.Activity?.length || 0) > 0 ? (
                     <div className="space-y-4">
-                      {task.comments.map(comment => (
-                        <div key={comment.id} className="flex gap-3 group">
-                          <Avatar size="sm" initials={comment.author?.name} />
-                          <div className="flex-1">
-                            <div className="flex items-baseline justify-between mb-1">
-                              <div className="flex items-baseline gap-2">
-                                <span className="font-medium text-sm">{comment.author?.name}</span>
-                                <span className="text-xs text-[var(--muted)]">{new Date(comment.createdAt).toLocaleString()}</span>
+                      {[
+                        ...(task.comments || []).map((c: any) => ({ ...c, isActivity: false })),
+                        ...(task.Activity || []).map((a: any) => ({ ...a, isActivity: true }))
+                      ]
+                        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                        .map(item => (
+                          <div key={item.id + (item.isActivity ? '-a' : '-c')} className="flex gap-3 group">
+                            <Avatar size="sm" initials={item.isActivity ? item.User?.name : item.author?.name} />
+                            <div className="flex-1">
+                              <div className="flex items-baseline justify-between mb-1">
+                                <div className="flex items-baseline gap-2">
+                                  <span className="font-medium text-sm">{item.isActivity ? item.User?.name : item.author?.name}</span>
+                                  <span className="text-xs text-[var(--muted)]">{new Date(item.createdAt).toLocaleString()}</span>
+                                </div>
+                                {!item.isActivity && (
+                                  <button 
+                                    onClick={() => deleteComment({ id: item.id, taskId: task.id })}
+                                    disabled={isDeletingComment}
+                                    className="opacity-0 group-hover:opacity-100 text-[var(--muted)] hover:text-red-500 transition-opacity"
+                                    title="Delete comment"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                )}
                               </div>
-                              <button 
-                                onClick={() => deleteComment({ id: comment.id, taskId: task.id })}
-                                disabled={isDeletingComment}
-                                className="opacity-0 group-hover:opacity-100 text-[var(--muted)] hover:text-red-500 transition-opacity"
-                                title="Delete comment"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
+                              {item.isActivity ? (
+                                <p className="text-sm text-[var(--muted)]">
+                                  {item.type === 'STATUS_CHANGED' && `changed status from ${item.payload?.from} to ${item.payload?.to}`}
+                                  {item.type === 'PRIORITY_CHANGED' && `changed priority from ${item.payload?.from} to ${item.payload?.to}`}
+                                  {item.type === 'TASK_CREATED' && `created this task`}
+                                </p>
+                              ) : (
+                                <p className="text-sm whitespace-pre-wrap">{item.content}</p>
+                              )}
                             </div>
-                            <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
                           </div>
-                        </div>
                       ))}
                     </div>
                   ) : (

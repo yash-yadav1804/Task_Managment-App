@@ -16,6 +16,7 @@ export interface Task {
   TaskMember?: any[];
   TaskLabel?: any[];
   comments?: any[];
+  Activity?: any[];
   subtasks?: Task[];
 }
 

@@ -9,7 +9,7 @@ export class TasksService {
   constructor(private prisma: PrismaService) {}
 
   async create(createTaskDto: CreateTaskDto, userId: string) {
-    return this.prisma.task.create({
+    const task = await this.prisma.task.create({
       data: {
         ...createTaskDto,
         reporterId: userId,
@@ -24,6 +24,12 @@ export class TasksService {
         TaskLabel: { include: { Label: true } },
       },
     });
+
+    await this.prisma.activity.create({
+      data: { taskId: task.id, actorId: userId, type: 'TASK_CREATED' }
+    });
+
+    return task;
   }
 
   async findAll(params?: { search?: string; status?: string; projectId?: string }) {
@@ -61,6 +67,7 @@ export class TasksService {
         TaskMember: { include: { User: true } },
         TaskLabel: { include: { Label: true } },
         Comment: { include: { User: true }, orderBy: { createdAt: 'desc' } },
+        Activity: { include: { User: true }, orderBy: { createdAt: 'desc' } },
       },
     });
 
@@ -80,9 +87,10 @@ export class TasksService {
     return { ...task, subtasks };
   }
 
-  async update(id: string, updateTaskDto: UpdateTaskDto) {
+  async update(id: string, updateTaskDto: UpdateTaskDto, userId?: string) {
     try {
-      return await this.prisma.task.update({
+      const oldTask = await this.prisma.task.findUnique({ where: { id } });
+      const updated = await this.prisma.task.update({
         where: { id },
         data: {
           ...updateTaskDto,
@@ -94,6 +102,21 @@ export class TasksService {
           TaskLabel: { include: { Label: true } },
         },
       });
+
+      if (userId && oldTask) {
+        if (oldTask.status !== updated.status) {
+          await this.prisma.activity.create({
+            data: { taskId: id, actorId: userId, type: 'STATUS_CHANGED', payload: { from: oldTask.status, to: updated.status } }
+          });
+        }
+        if (oldTask.priority !== updated.priority) {
+          await this.prisma.activity.create({
+            data: { taskId: id, actorId: userId, type: 'PRIORITY_CHANGED', payload: { from: oldTask.priority, to: updated.priority } }
+          });
+        }
+      }
+
+      return updated;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
         throw new NotFoundException(`Task with ID ${id} not found`);

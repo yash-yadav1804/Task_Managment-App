@@ -9,6 +9,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { TasksModule } from './tasks/tasks.module';
 import { CommentsModule } from './comments/comments.module';
 import { LabelsModule } from './labels/labels.module';
+import { ActivityService } from './activity/activity.service';
 
 @Module({
   imports: [
@@ -22,6 +23,6 @@ import { LabelsModule } from './labels/labels.module';
     LabelsModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ActivityService],
 })
 export class AppModule {}
