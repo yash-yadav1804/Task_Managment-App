@@ -25,4 +25,11 @@ export class UsersService {
       orderBy: { name: 'asc' },
     });
   }
+
+  async update(id: string, data: { name?: string; title?: string }): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data,
+    });
+  }
 }

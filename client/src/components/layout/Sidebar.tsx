@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../../hooks/useAuth';
-import { LayoutList, Folder, ChevronDown, Menu, X } from 'lucide-react';
+import { LayoutList, Folder, ChevronDown, Menu, X, Settings } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: boolean) => void }) {
@@ -12,6 +12,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsO
     { name: 'Dashboard', href: '/', icon: LayoutList, exact: true },
     { name: 'Tasks', href: '/tasks', icon: LayoutList },
     { name: 'Projects', href: '/projects', icon: Folder },
+    { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
   return (
