@@ -1,4 +1,94 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateProjectDto } from './dto/create-project.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
+import { Prisma } from '../../generated/prisma/index.js';
 
 @Injectable()
-export class ProjectsService {}
+export class ProjectsService {
+  constructor(private prisma: PrismaService) {}
+
+  async create(createProjectDto: CreateProjectDto, userId: string) {
+    return this.prisma.project.create({
+      data: {
+        ...createProjectDto,
+        leadId: userId,
+        priority: (createProjectDto.priority as any) || 'NO_PRIORITY',
+        ProjectMember: {
+          create: [{ userId }], // Assign creator as a project member by default
+        },
+      },
+      include: {
+        lead: true,
+        ProjectMember: { include: { user: true } },
+      },
+    });
+  }
+
+  async findAll() {
+    return this.prisma.project.findMany({
+      include: {
+        lead: true,
+        ProjectMember: { include: { user: true } },
+        _count: { select: { tasks: true } }
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findOne(id: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      include: {
+        lead: true,
+        ProjectMember: { include: { user: true } },
+        tasks: {
+          include: {
+            reporter: true,
+            TaskMember: { include: { user: true } },
+            TaskLabel: { include: { label: true } },
+          },
+          orderBy: { createdAt: 'desc' }
+        }
+      },
+    });
+
+    if (!project) {
+      throw new NotFoundException(`Project with ID ${id} not found`);
+    }
+
+    return project;
+  }
+
+  async update(id: string, updateProjectDto: UpdateProjectDto) {
+    try {
+      return await this.prisma.project.update({
+        where: { id },
+        data: {
+          ...updateProjectDto,
+          priority: updateProjectDto.priority as any,
+        },
+        include: {
+          lead: true,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        throw new NotFoundException(`Project with ID ${id} not found`);
+      }
+      throw error;
+    }
+  }
+
+  async remove(id: string) {
+    try {
+      await this.prisma.project.delete({ where: { id } });
+      return { success: true };
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        throw new NotFoundException(`Project with ID ${id} not found`);
+      }
+      throw error;
+    }
+  }
+}
