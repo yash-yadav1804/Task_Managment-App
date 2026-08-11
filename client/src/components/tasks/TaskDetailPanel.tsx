@@ -3,8 +3,10 @@ import { X, Calendar, User as UserIcon, Tag, AlignLeft } from "lucide-react"
 import { Task, tasksService } from "../../services/tasks.service"
 import { useQuery } from "@tanstack/react-query"
 import { useTasks } from "../../hooks/useTasks"
+import { useComments } from "../../hooks/useComments"
 import { STATUS_CONFIG, PRIORITY_CONFIG } from "../../constants"
 import { Avatar } from "../ui/Avatar"
+import { Button } from "../ui/Button"
 
 export interface TaskDetailPanelProps {
   taskId: string | null;
@@ -13,6 +15,19 @@ export interface TaskDetailPanelProps {
 
 export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
   const { updateTask } = useTasks();
+  const { createComment, isCreating: isCreatingComment, deleteComment, isDeleting: isDeletingComment } = useComments();
+  const [newComment, setNewComment] = React.useState("");
+
+  const handleAddComment = async () => {
+    if (!taskId || !newComment.trim()) return;
+    try {
+      await createComment({ taskId, content: newComment.trim() });
+      setNewComment("");
+    } catch (error) {
+      console.error("Failed to add comment", error);
+    }
+  };
+
   const { data: task, isLoading } = useQuery({
     queryKey: ['task', taskId],
     queryFn: () => taskId ? tasksService.getTask(taskId) : null,
@@ -117,17 +132,49 @@ export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
                 
                 <div className="border-t border-[var(--border)] pt-8">
                   <h3 className="text-lg font-semibold mb-4">Activity</h3>
+                  
+                  <div className="mb-6 flex gap-3">
+                    <Avatar size="sm" initials="Me" />
+                    <div className="flex-1">
+                      <textarea
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Add a comment..."
+                        className="w-full min-h-[80px] rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-[var(--muted)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
+                      />
+                      <div className="mt-2 flex justify-end">
+                        <Button 
+                          size="sm" 
+                          onClick={handleAddComment} 
+                          disabled={!newComment.trim() || isCreatingComment}
+                        >
+                          {isCreatingComment ? "Posting..." : "Post Comment"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
                   {task.comments && task.comments.length > 0 ? (
                     <div className="space-y-4">
                       {task.comments.map(comment => (
-                        <div key={comment.id} className="flex gap-3">
+                        <div key={comment.id} className="flex gap-3 group">
                           <Avatar size="sm" initials={comment.author?.name} />
                           <div className="flex-1">
-                            <div className="flex items-baseline gap-2 mb-1">
-                              <span className="font-medium text-sm">{comment.author?.name}</span>
-                              <span className="text-xs text-[var(--muted)]">{new Date(comment.createdAt).toLocaleString()}</span>
+                            <div className="flex items-baseline justify-between mb-1">
+                              <div className="flex items-baseline gap-2">
+                                <span className="font-medium text-sm">{comment.author?.name}</span>
+                                <span className="text-xs text-[var(--muted)]">{new Date(comment.createdAt).toLocaleString()}</span>
+                              </div>
+                              <button 
+                                onClick={() => deleteComment({ id: comment.id, taskId: task.id })}
+                                disabled={isDeletingComment}
+                                className="opacity-0 group-hover:opacity-100 text-[var(--muted)] hover:text-red-500 transition-opacity"
+                                title="Delete comment"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
                             </div>
-                            <p className="text-sm">{comment.content}</p>
+                            <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
                           </div>
                         </div>
                       ))}
