@@ -1,0 +1,45 @@
+import { api } from '../lib/api';
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  status: 'BACKLOG' | 'TODO' | 'DOING' | 'COMPLETED' | 'ON_HOLD';
+  priority: 'NO_PRIORITY' | 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  projectId: string;
+  reporterId: string;
+  dueDate?: string;
+  createdAt: string;
+  updatedAt: string;
+  reporter?: any;
+  TaskMember?: any[];
+  TaskLabel?: any[];
+  comments?: any[];
+}
+
+export const tasksService = {
+  async getTasks(): Promise<Task[]> {
+    const { data } = await api.get('/tasks');
+    return data;
+  },
+
+  async getTask(id: string): Promise<Task> {
+    const { data } = await api.get(`/tasks/${id}`);
+    return data;
+  },
+
+  async createTask(taskData: Partial<Task>): Promise<Task> {
+    const { data } = await api.post('/tasks', taskData);
+    return data;
+  },
+
+  async updateTask(id: string, taskData: Partial<Task>): Promise<Task> {
+    const { data } = await api.patch(`/tasks/${id}`, taskData);
+    return data;
+  },
+
+  async deleteTask(id: string): Promise<{ success: boolean }> {
+    const { data } = await api.delete(`/tasks/${id}`);
+    return data;
+  }
+};
