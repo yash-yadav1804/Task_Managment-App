@@ -1,0 +1,58 @@
+# ============================================================
+# Task Management System — Root .gitignore
+# ============================================================
+
+# ----- Environment Variables (NEVER commit these) ----------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# ----- Dependencies ----------------------------------------
+node_modules/
+**/node_modules/
+
+# ----- Next.js Build Output --------------------------------
+client/.next/
+client/out/
+client/build/
+
+# ----- NestJS Build Output ---------------------------------
+server/dist/
+server/build/
+
+# ----- Logs ------------------------------------------------
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# ----- Coverage Reports ------------------------------------
+coverage/
+**/coverage/
+
+# ----- OS Files --------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ----- Editor Directories ----------------------------------
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ----- Prisma: never commit migration lock without review --
+# (migration files ARE committed — schema changes must be tracked)
+# Only exclude generated client
+server/src/generated/
+
+# ----- Miscellaneous ---------------------------------------
+*.tsbuildinfo
+.turbo/
