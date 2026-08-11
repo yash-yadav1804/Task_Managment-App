@@ -68,7 +68,16 @@ export class TasksService {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
 
-    return task;
+    const subtasks = await this.prisma.task.findMany({
+      where: { parentTaskId: id },
+      include: {
+        TaskMember: { include: { User: true } },
+        TaskLabel: { include: { Label: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    return { ...task, subtasks };
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto) {

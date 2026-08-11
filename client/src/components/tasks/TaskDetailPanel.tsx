@@ -17,7 +17,7 @@ export interface TaskDetailPanelProps {
 }
 
 export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
-  const { updateTask, addMember, removeMember } = useTasks();
+  const { updateTask, addMember, removeMember, createTask } = useTasks();
   const { createComment, isCreating: isCreatingComment, deleteComment, isDeleting: isDeletingComment } = useComments();
   const { labels, assignToTask, removeFromTask, createLabel } = useLabels();
   const { users } = useUsers();
@@ -123,6 +123,39 @@ export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
                         <p className="text-sm text-[var(--fg)] whitespace-pre-wrap">
                           {task.description || "No description provided."}
                         </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="w-5 h-5 flex items-center justify-center mt-0.5 text-[var(--muted)] border border-current rounded-sm">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-sm font-medium mb-2">Subtasks</h3>
+                        {task.subtasks && task.subtasks.length > 0 ? (
+                          <div className="space-y-2 mb-3">
+                            {task.subtasks.map(sub => (
+                              <div key={sub.id} className="flex items-center gap-3 p-2 border border-[var(--border)] rounded-md hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer">
+                                <input type="checkbox" checked={sub.status === 'COMPLETED'} readOnly className="w-4 h-4 rounded border-[var(--border)]" />
+                                <span className={sub.status === 'COMPLETED' ? "line-through text-[var(--muted)]" : ""}>{sub.title}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : null}
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          onClick={() => {
+                            const title = window.prompt("Subtask title:");
+                            if (title) {
+                              createTask({ title, parentTaskId: task.id, projectId: task.projectId });
+                            }
+                          }}
+                        >
+                          + Add Subtask
+                        </Button>
                       </div>
                     </div>
                   </div>

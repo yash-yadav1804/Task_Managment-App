@@ -8,6 +8,7 @@ export interface Task {
   priority: 'NO_PRIORITY' | 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
   projectId: string;
   reporterId: string;
+  parentTaskId?: string;
   dueDate?: string;
   createdAt: string;
   updatedAt: string;
@@ -15,6 +16,7 @@ export interface Task {
   TaskMember?: any[];
   TaskLabel?: any[];
   comments?: any[];
+  subtasks?: Task[];
 }
 
 export const tasksService = {
