@@ -3,7 +3,7 @@ import { PriorityBadge } from '../ui/PriorityBadge';
 import { StatusBadge } from '../ui/StatusBadge';
 import { Avatar } from '../ui/Avatar';
 
-export function TaskList({ tasks, isLoading }: { tasks: Task[], isLoading: boolean }) {
+export function TaskList({ tasks, isLoading, onTaskClick }: { tasks: Task[], isLoading: boolean, onTaskClick?: (taskId: string) => void }) {
   if (isLoading) {
     return <div className="p-4 text-[var(--muted)]">Loading tasks...</div>;
   }
@@ -31,6 +31,7 @@ export function TaskList({ tasks, isLoading }: { tasks: Task[], isLoading: boole
         {tasks.map((task) => (
           <div 
             key={task.id} 
+            onClick={() => onTaskClick?.(task.id)}
             className="flex items-center px-4 py-3 border-b border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer group"
           >
             <div className="w-16 text-xs text-[var(--muted)] font-mono">

@@ -5,12 +5,14 @@ import TopBar from '../../components/layout/TopBar';
 import { useTasks } from '../../hooks/useTasks';
 import { TaskList } from '../../components/tasks/TaskList';
 import { CreateTaskModal } from '../../components/tasks/CreateTaskModal';
+import { TaskDetailPanel } from '../../components/tasks/TaskDetailPanel';
 import { Button } from '../../components/ui/Button';
 import { Plus, Filter, ArrowUpDown } from 'lucide-react';
 
 export default function TasksPage() {
   const { tasks, isLoading } = useTasks();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const toolbar = (
     <>
@@ -41,13 +43,18 @@ export default function TasksPage() {
               {tasks?.length || 0} tasks
             </div>
           </div>
-          <TaskList tasks={tasks} isLoading={isLoading} />
+          <TaskList tasks={tasks} isLoading={isLoading} onTaskClick={setSelectedTaskId} />
         </div>
       </div>
 
       <CreateTaskModal 
         isOpen={isCreateModalOpen} 
         onClose={() => setIsCreateModalOpen(false)} 
+      />
+      
+      <TaskDetailPanel
+        taskId={selectedTaskId}
+        onClose={() => setSelectedTaskId(null)}
       />
     </div>
   );
