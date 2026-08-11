@@ -4,9 +4,11 @@ import { Task, tasksService } from "../../services/tasks.service"
 import { useQuery } from "@tanstack/react-query"
 import { useTasks } from "../../hooks/useTasks"
 import { useComments } from "../../hooks/useComments"
+import { useLabels } from "../../hooks/useLabels"
 import { STATUS_CONFIG, PRIORITY_CONFIG } from "../../constants"
 import { Avatar } from "../ui/Avatar"
 import { Button } from "../ui/Button"
+import { LabelBadge } from "../ui/LabelBadge"
 
 export interface TaskDetailPanelProps {
   taskId: string | null;
@@ -16,6 +18,7 @@ export interface TaskDetailPanelProps {
 export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
   const { updateTask } = useTasks();
   const { createComment, isCreating: isCreatingComment, deleteComment, isDeleting: isDeletingComment } = useComments();
+  const { labels, assignToTask, removeFromTask, createLabel } = useLabels();
   const [newComment, setNewComment] = React.useState("");
 
   const handleAddComment = async () => {
@@ -67,7 +70,50 @@ export function TaskDetailPanel({ taskId, onClose }: TaskDetailPanelProps) {
                 <h1 className="text-2xl font-bold text-[var(--fg)] mb-6">{task.title}</h1>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  <div className="space-y-4 col-span-2">
+                  <div className="space-y-6 col-span-2">
+                    <div className="flex items-start gap-3">
+                      <Tag className="w-5 h-5 text-[var(--muted)] mt-0.5" />
+                      <div className="flex-1">
+                        <h3 className="text-sm font-medium mb-2">Labels</h3>
+                        <div className="flex flex-wrap gap-2 items-center">
+                          {task.TaskLabel?.map(tl => (
+                            <LabelBadge 
+                              key={tl.Label.id} 
+                              label={tl.Label} 
+                              onRemove={() => removeFromTask({ taskId: task.id, labelId: tl.Label.id })}
+                            />
+                          ))}
+                          <select 
+                            className="text-xs bg-[var(--bg-muted)] border border-[var(--border)] rounded px-2 py-1 outline-none text-[var(--muted)] hover:text-[var(--fg)] cursor-pointer"
+                            onChange={async (e) => {
+                              if (e.target.value === "CREATE_NEW") {
+                                const name = window.prompt("Enter new label name:");
+                                if (name) {
+                                  // Random color selection for simplicity
+                                  const colors = ["bg-red-500", "bg-blue-500", "bg-green-500", "bg-yellow-500", "bg-purple-500", "bg-pink-500"];
+                                  const color = colors[Math.floor(Math.random() * colors.length)];
+                                  const newLabel = await createLabel({ name, color });
+                                  if (newLabel) {
+                                    assignToTask({ taskId: task.id, labelId: newLabel.id });
+                                  }
+                                }
+                              } else if (e.target.value) {
+                                assignToTask({ taskId: task.id, labelId: e.target.value });
+                              }
+                              e.target.value = ""; // reset
+                            }}
+                            defaultValue=""
+                          >
+                            <option value="" disabled>+ Add Label</option>
+                            {labels.map(l => (
+                              <option key={l.id} value={l.id}>{l.name}</option>
+                            ))}
+                            <option value="CREATE_NEW" className="font-bold border-t border-[var(--border)] text-[var(--accent)]">+ Create new label</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <div className="flex items-start gap-3">
                       <AlignLeft className="w-5 h-5 text-[var(--muted)] mt-0.5" />
                       <div>
